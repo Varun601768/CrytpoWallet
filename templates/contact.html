@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Crypto Style</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* 3D Animated Background */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(247, 147, 26, 0.1) 0%, rgba(98, 126, 234, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%);
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -3;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); filter: hue-rotate(45deg); }
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.05), rgba(98, 126, 234, 0.05), rgba(153, 69, 255, 0.05));
+            z-index: -2;
+            animation: gradientShift 12s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+            box-shadow: 0 0 10px rgba(247, 147, 26, 0.5);
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(200px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-btn:hover::before {
+            left: 100%;
+        }
+
+        .nav-btn:hover {
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Contact Header */
+        .contact-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .contact-header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f7931a, #627eea, #9945ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(247, 147, 26, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .contact-header p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+        }
+
+        /* Form Styles */
+        form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            padding: 3rem 2.5rem;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        form::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.05), rgba(98, 126, 234, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        form:hover::before {
+            opacity: 1;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f7931a;
+            box-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            color: white;
+            border: none;
+            padding: 1.2rem 2rem;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(247, 147, 26, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Status Messages */
+        .loading,
+        .success-message,
+        .error-message {
+            display: none;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            background: rgba(98, 126, 234, 0.2);
+            border: 1px solid rgba(98, 126, 234, 0.3);
+            color: #627eea;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .contact-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            form {
+                padding: 2rem 1.5rem;
+            }
+
+            .nav-buttons {
+                gap: 0.5rem;
+            }
+
+            .nav-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Particle interaction effects */
+        .particle-burst {
+            filter: brightness(2) drop-shadow(0 0 15px currentColor);
+            transform: scale(1.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="crypto-background"></div>
+    <div class="gradient-overlay"></div>
+    
+    <div class="particles">
+        <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; animation-delay: 10s;"></div>
+        <div class="particle" style="left: 70%; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 80%; animation-delay: 14s;"></div>
+        <div class="particle" style="left: 90%; animation-delay: 16s;"></div>
+        <div class="particle" style="left: 15%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 25%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 35%; animation-delay: 5s;"></div>
+        <div class="particle" style="left: 45%; animation-delay: 7s;"></div>
+        <div class="particle" style="left: 55%; animation-delay: 9s;"></div>
+        <div class="particle" style="left: 65%; animation-delay: 11s;"></div>
+        <div class="particle" style="left: 75%; animation-delay: 13s;"></div>
+        <div class="particle" style="left: 85%; animation-delay: 15s;"></div>
+        <div class="particle" style="left: 95%; animation-delay: 17s;"></div>
+    </div>
+    
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="nav-btn" onclick="window.location.href='/predict'">📈 Predict</button>
+            <button class="nav-btn" onclick="window.location.href='/profile'">👤 Profile</button>
+            <button class="nav-btn" onclick="window.location.href='/login'">🔑 Login</button>
+        </div>
+        
+        <div class="contact-header">
+            <h1>Contact Us</h1>
+            <p>Get in touch with us for any inquiries about our crypto platform</p>
+        </div>
+
+        <form id="contactForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" name="phone">
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject *</label>
+                <select id="subject" name="subject" required>
+                    <option value="">Select a subject</option>
+                    <option value="General Inquiry">General Inquiry</option>
+                    <option value="Business Proposal">Business Proposal</option>
+                    <option value="Technical Support">Technical Support</option>
+                    <option value="Partnership">Partnership</option>
+                    <option value="Feedback">Feedback</option>
+                    <option value="Trading Support">Trading Support</option>
+                    <option value="API Integration">API Integration</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="message">Message *</label>
+                <textarea id="message" name="message" placeholder="Please enter your message here..." required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn">Send Message</button>
+        </form>
+
+        <div class="loading" id="loading">🚀 Sending message to the blockchain...</div>
+        <div class="success-message" id="successMessage">
+            ✅ Thank you for your message! We'll get back to you within 24 hours.
+        </div>
+        <div class="error-message" id="errorMessage">
+            ❌ Sorry, there was an error sending your message. Please try again.
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loading = document.getElementById('loading');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            // Hide previous messages
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+            
+            // Show loading
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                // Simulate API call with loading animation
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // For demo purposes, we'll show success
+                // In production, replace this with actual fetch call:
+                /*
+                const response = await fetch('/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    this.reset();
+                } else {
+                    throw new Error('Failed to send email');
+                }
+                */
+                
+                // Demo success
+                successMessage.style.display = 'block';
+                this.reset();
+                
+                // Add particle burst effect
+                triggerParticleBurst();
+                
+            } catch (error) {
+                errorMessage.style.display = 'block';
+                console.error('Error:', error);
+            } finally {
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Message';
+            }
+        });
+
+        // Enhanced particle interaction effects
+        const formInputs = document.querySelectorAll('input, select, textarea');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    particle.style.filter = 'brightness(1.5) drop-shadow(0 0 15px #f7931a)';
+                    particle.style.transform = 'scale(1.2)';
+                });
+            });
+            
+            input.addEventListener('blur', function() {
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(particle => {
+                    particle.style.filter = 'none';
+                    particle.style.transform = 'scale(1)';
+                });
+            });
+        });
+
+        // Particle burst effect on form submission
+        function triggerParticleBurst() {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach((particle, index) => {
+                setTimeout(() => {
+                    particle.classList.add('particle-burst');
+                    setTimeout(() => {
+                        particle.classList.remove('particle-burst');
+                    }, 1000);
+                }, index * 100);
+            });
+        }
+
+        // Add floating animation to form on scroll
+        window.addEventListener('scroll', function() {
+            const form = document.querySelector('form');
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            if (form) {
+                form.style.transform = `translateY(${rate}px)`;
+            }
+        });
+
+        // Add typing effect to placeholder
+        const messageTextarea = document.getElementById('message');
+        const placeholders = [
+            "Tell us about your crypto trading needs...",
+            "Ask us about our API integration...", 
+            "Share your feedback about our platform...",
+            "Describe your business proposal...",
+            "Let us know how we can help you..."
+        ];
+        
+        let currentPlaceholder = 0;
+        
+        setInterval(() => {
+            messageTextarea.placeholder = placeholders[currentPlaceholder];
+            currentPlaceholder = (currentPlaceholder + 1) % placeholders.length;
+        }, 3000);
+    </script>
+</body>
+</html>

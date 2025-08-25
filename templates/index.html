@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoWallet - Price Predictor</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Animated Background with rotating crypto images */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.15;
+            background-size: 200px 200px;
+            animation: backgroundShift 20s infinite linear;
+        }
+
+        .crypto-background.bitcoin {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f7931a"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">₿</text></svg>');
+        }
+
+        @keyframes backgroundShift {
+            0% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(-100px) translateY(-50px) rotate(90deg); }
+            50% { transform: translateX(-200px) translateY(-100px) rotate(180deg); }
+            75% { transform: translateX(-300px) translateY(-150px) rotate(270deg); }
+            100% { transform: translateX(-400px) translateY(-200px) rotate(360deg); }
+        }
+
+        /* Gradient overlay */
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, 
+                rgba(247, 147, 26, 0.1) 0%,
+                rgba(98, 126, 234, 0.1) 10%,
+                rgba(153, 69, 255, 0.1) 20%,
+                rgba(0, 212, 170, 0.1) 30%,
+                rgba(130, 71, 229, 0.1) 40%,
+                rgba(243, 186, 47, 0.1) 50%,
+                rgba(55, 91, 210, 0.1) 60%,
+                rgba(230, 0, 122, 0.1) 70%,
+                rgba(232, 65, 66, 0.1) 80%,
+                rgba(46, 49, 72, 0.1) 90%,
+                rgba(247, 147, 26, 0.1) 100%);
+            animation: gradientShift 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { opacity: 0.8; filter: hue-rotate(0deg); }
+            100% { opacity: 1; filter: hue-rotate(360deg); }
+        }
+
+        /* 3D Floating particles */
+        .particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle-3d {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: float3d 15s infinite linear;
+            background: #f7931a;
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(100vh) translateX(0) rotateX(0deg) rotateY(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) translateX(20px) rotateX(30deg) rotateY(45deg) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(50vh) translateX(-30px) rotateX(180deg) rotateY(180deg) scale(1.5);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) translateX(50px) rotateX(300deg) rotateY(315deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(0) rotateX(360deg) rotateY(360deg) scale(0);
+            }
+        }
+
+        .container {
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            margin-top: 80px; /* Space for navbar */
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .nav-logo a {
+            color: #f7931a;
+            text-decoration: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-menu a:hover {
+            color: #f7931a;
+        }
+
+        .user-menu {
+            position: relative;
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem 0;
+            min-width: 150px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            list-style: none;
+        }
+
+        .user-menu:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f7931a, #627eea, #9945ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            line-height: 1.2;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(247, 147, 26, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(98, 126, 234, 0.6)); }
+            100% { filter: drop-shadow(0 0 30px rgba(153, 69, 255, 0.8)); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-top: 1rem;
+        }
+
+        /* Prediction Form */
+        .prediction-form {
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            transition: all 0.5s ease;
+        }
+
+        .prediction-form:hover {
+            transform: translateY(-10px) rotateX(2deg);
+            box-shadow: 0 30px 60px rgba(247, 147, 26, 0.2);
+            border-color: rgba(247, 147, 26, 0.5);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #f7931a;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(247, 147, 26, 0.3);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #f7931a;
+            box-shadow: 0 0 20px rgba(247, 147, 26, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .predict-button {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            background: linear-gradient(135deg, #f7931a, #627eea);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .predict-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .predict-button:hover {
+            transform: translateY(-5px) rotateX(10deg);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.3);
+        }
+
+        .predict-button:hover::before {
+            opacity: 1;
+            left: 100%;
+        }
+
+        /* Error Message */
+        .error-message {
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            border-radius: 10px;
+            color: #ff6b6b;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Results Section */
+        .results-section {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .price-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+        }
+
+        .price-card:hover {
+            transform: translateY(-10px) rotateX(2deg);
+            box-shadow: 0 30px 60px rgba(247, 147, 26, 0.2);
+            border-color: rgba(247, 147, 26, 0.5);
+        }
+
+        .price-card h2 {
+            color: #f7931a;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .price-value {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #00d4aa;
+            text-shadow: 0 0 20px rgba(0, 212, 170, 0.5);
+            animation: priceGlow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes priceGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(0, 212, 170, 0.3)); }
+            100% { filter: drop-shadow(0 0 25px rgba(0, 212, 170, 0.8)); }
+        }
+
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+
+        /* Predictions Table */
+        .predictions-table {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.5s ease;
+        }
+
+        .predictions-table:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.2);
+        }
+
+        .predictions-table h2 {
+            color: #f7931a;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+            font-weight: bold;
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: scale(1.01);
+            transition: all 0.3s ease;
+        }
+
+        .view-results-button {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #00d4aa, #627eea);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view-results-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 212, 170, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .price-value {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="crypto-background bitcoin"></div>
+    <div class="gradient-overlay"></div>
+    
+    <!-- 3D Floating Particles -->
+    <div class="particles-3d" id="particles"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="/">🚀 CryptoWallet</a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/">Home</a></li>
+                <li><a href="/analysis">Analysis</a></li>
+                <li><a href="/ab">About</a></li>
+                <li><a href="/con">Contact</a></li>
+                {% if current_user.is_authenticated %}
+                    <li class="user-menu">
+                        <a href="#" class="user-dropdown">
+                            <i class="fas fa-user"></i> {{ current_user.first_name }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/profile">Profile</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Crypto Price Predictor</h1>
+            <p>Predict cryptocurrency prices with advanced AI algorithms</p>
+        </div>
+        
+        <!-- Prediction Form -->
+        <div class="prediction-form">
+            <div class="form-content">
+                <form action="/predict" method="POST">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ticker">Crypto Ticker</label>
+                            <input type="text" id="ticker" name="ticker" value="{{ ticker }}" placeholder="e.g., BTC, ETH, ADA" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="prediction_days">Prediction Days</label>
+                            <input type="number" id="prediction_days" name="prediction_days" value="{{ prediction_days }}" min="1" max="30" placeholder="1-30 days" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="currency">Currency</label>
+                            <select id="currency" name="currency" required>
+                                <option value="USD" {% if currency_code == 'USD' %}selected{% endif %}>USD ($)</option>
+                                <option value="INR" {% if currency_code == 'INR' %}selected{% endif %}>INR (₹)</option>
+                                <option value="EUR" {% if currency_code == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                                <option value="JPY" {% if currency_code == 'JPY' %}selected{% endif %}>JPY (¥)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="predict-button">🚀 Predict Price</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        {% if error %}
+        <div class="error-message">
+            <strong>⚠️ Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <!-- Results Section -->
+        {% if latest_price %}
+        <div class="results-section">
+            <!-- Latest Price Card -->
+            <div class="price-card">
+                <h2>Latest Price for {{ ticker }}</h2>
+                <div class="price-value">{{ "%.2f" | format(latest_price) }} {{ currency_code }}</div>
+            </div>
+
+            <!-- Historical Price Chart -->
+            <div class="price-card">
+                <h2>Historical Price (Past 60 Days)</h2>
+                <div class="chart-container">
+                    <canvas id="actualPriceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Prediction vs Actual Chart -->
+            <div class="price-card">
+                <h2>Actual vs. Predicted Prices</h2>
+                <div class="chart-container">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Predictions Table -->
+            <div class="predictions-table">
+                <h2>📊 Predicted Prices for {{ ticker }} ({{ currency_code }})</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>📅 Date</th>
+                                <th>💵 Predicted Price ({{ currency_code }})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for date, price in predictions %}
+                            <tr>
+                                <td>{{ date }}</td>
+                                <td><strong>{{ "%.2f" | format(price) }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <form action="/result" method="POST">
+                    <input type="hidden" name="ticker" value="{{ ticker }}">
+                    <input type="hidden" name="currency_code" value="{{ currency_code }}">
+                    <input type="hidden" name="historical_dates" value="{{ historical_dates | join(',') }}">
+                    <input type="hidden" name="historical_prices" value="{{ historical_prices | join(',') }}">
+                    <input type="hidden" name="future_dates" value="{{ future_dates | join(',') }}">
+                    <input type="hidden" name="future_predictions" value="{{ future_predictions | join(',') }}">
+                    <button type="submit" class="view-results-button">📈 View Detailed Results</button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Create floating particles
+            function createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle-3d';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 15 + 's';
+                    particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                    particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            // Chart.js configurations with enhanced styling
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#ffffff',
+                            font: { size: 14, weight: 'bold' }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffd700',
+                        bodyColor: '#ffffff',
+                        borderColor: '#ffd700',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: { 
+                            color: '#ffffff',
+                            font: { size: 12 }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        ticks: { 
+                            color: '#ffffff',
+                            font: { size: 12 }
+                        },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                }
+            };
+
+            // Only run chart scripts if we have data
+            {% if historical_dates and historical_prices %}
+            // Actual Price Chart (Past 60 Days)
+            const actualCtx = document.getElementById('actualPriceChart').getContext('2d');
+            new Chart(actualCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ historical_dates | tojson }},
+                    datasets: [{
+                        label: 'Actual Price',
+                        data: {{ historical_prices | tojson }},
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#4ecdc4',
+                        pointBorderColor: '#ffffff',
+                        pointRadius: 4,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: { 
+                            display: true, 
+                            text: '{{ ticker }} Historical Price ({{ currency_code }})',
+                            color: '#ffd700',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+
+            // Actual vs. Predicted Price Chart
+            const predictCtx = document.getElementById('priceChart').getContext('2d');
+            new Chart(predictCtx, {
+                type: 'line',
+                data: {
+                    labels: [...{{ historical_dates | tojson }}, ...{{ future_dates | tojson }}],
+                    datasets: [
+                        {
+                            label: 'Actual Price',
+                            data: [...{{ historical_prices | tojson }}, ...Array({{ future_predictions | length }}).fill(null)],
+                            borderColor: '#4ecdc4',
+                            backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: '#4ecdc4',
+                            pointBorderColor: '#ffffff',
+                            pointRadius: 4,
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Predicted Price',
+                            data: [...Array({{ historical_prices | length }}).fill(null), ...{{ future_predictions | tojson }}],
+                            borderColor: '#ff6b6b',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            borderWidth: 3,
+                            borderDash: [8, 4],
+                            pointBackgroundColor: '#ff6b6b',
+                            pointBorderColor: '#ffffff',
+                            pointRadius: 6,
+                            pointHoverRadius: 10,
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        title: { 
+                            display: true, 
+                            text: '{{ ticker }} Actual vs. Predicted Price ({{ currency_code }})',
+                            color: '#ffd700',
+                            font: { size: 16, weight: 'bold' }
+                        }
+                    }
+                }
+            });
+            {% endif %}
+
+            // Form enhancement
+            document.addEventListener('DOMContentLoaded', function() {
+                // Create particles
+                createParticles();
+                
+                const form = document.querySelector('form');
+                const inputs = form.querySelectorAll('input, select');
+                
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.parentElement.style.transform = 'scale(1.02)';
+                    });
+                    
+                    input.addEventListener('blur', function() {
+                        this.parentElement.style.transform = 'scale(1)';
+                    });
+                });
+            });
+        </script>
+        {% endif %}
+    </div>
+</body>
+</html>

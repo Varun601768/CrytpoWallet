@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About CryptoVision - Price Prediction & Analysis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+            opacity: 1;
+        }
+
+        /* 3D Animated Background */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(247, 147, 26, 0.1) 0%, rgba(98, 126, 234, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%);
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -3;
+            opacity: 0.05;
+            transition: opacity 0.3s ease;
+        }
+
+        .crypto-background.bitcoin {
+            background: radial-gradient(circle at 30% 40%, rgba(247, 147, 26, 0.15) 0%, transparent 70%);
+        }
+
+        .crypto-background.ethereum {
+            background: radial-gradient(circle at 70% 60%, rgba(98, 126, 234, 0.15) 0%, transparent 70%);
+        }
+
+        .crypto-background.cardano {
+            background: radial-gradient(circle at 20% 80%, rgba(0, 51, 173, 0.1) 0%, transparent 70%);
+        }
+
+        .crypto-background.solana {
+            background: radial-gradient(circle at 80% 20%, rgba(153, 69, 255, 0.1) 0%, transparent 70%);
+        }
+
+        .crypto-background.polygon {
+            background: radial-gradient(circle at 50% 20%, rgba(130, 71, 229, 0.1) 0%, transparent 70%);
+        }
+
+        .crypto-background.binance {
+            background: radial-gradient(circle at 90% 80%, rgba(243, 186, 47, 0.1) 0%, transparent 70%);
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); filter: hue-rotate(45deg); }
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.05), rgba(98, 126, 234, 0.05), rgba(153, 69, 255, 0.05));
+            z-index: -2;
+            animation: gradientShift 12s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 3D Particles */
+        .particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle-3d {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: float3d 15s infinite linear;
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(100vh) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(200px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a.active {
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.5);
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before,
+        .nav-links a.active::before {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.5);
+        }
+
+        /* Main Content */
+        main {
+            padding-top: 100px;
+        }
+
+        /* About Hero Section */
+        .about-hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(10, 10, 20, 0.9));
+            position: relative;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(247, 147, 26, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #f7931a, #627eea, #9945ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(247, 147, 26, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .about-hero p {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Content Sections */
+        .content-section {
+            padding: 4rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .content-section h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .content-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .content-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.1), rgba(98, 126, 234, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .content-card:hover::before {
+            opacity: 1;
+        }
+
+        .content-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(247, 147, 26, 0.2);
+        }
+
+        .content-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f7931a;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-card ul {
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .content-card li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Prediction Section */
+        .prediction-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin: 2rem 0;
+        }
+
+        .prediction-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .prediction-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prediction-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(98, 126, 234, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .prediction-card:hover::before {
+            opacity: 1;
+        }
+
+        .prediction-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 25px 60px rgba(247, 147, 26, 0.3);
+        }
+
+        .crypto-symbol {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+
+        .prediction-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-info {
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .current-price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f7931a;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-change {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .price-change.positive {
+            color: #00d4aa;
+        }
+
+        .price-change.negative {
+            color: #ff4757;
+        }
+
+        .prediction-timeline {
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .timeline-period {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .timeline-price {
+            color: #00d4aa;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Statistics Section */
+        .stats-section {
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(247, 147, 26, 0.05), rgba(98, 126, 234, 0.05));
+            text-align: center;
+        }
+
+        .stats-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(247, 147, 26, 0.3);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        /* Crypto Ticker */
+        .crypto-ticker {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            margin-right: 4rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #00d4aa;
+        }
+
+        @keyframes scroll {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(10, 10, 20, 0.95));
+            backdrop-filter: blur(30px);
+            border-top: 2px solid rgba(247, 147, 26, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(247, 147, 26, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(98, 126, 234, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+            gap: 3rem;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .footer-section ul li a::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: #f7931a;
+        }
+
+        .footer-section ul li a:hover {
+            color: #f7931a;
+            padding-left: 25px;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        .footer-section ul li a:hover::before {
+            opacity: 1;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .about-hero p {
+                font-size: 1.1rem;
+            }
+
+            .content-grid,
+            .prediction-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+   
+<body>
+    <!-- Animated background layers -->
+    <div class="crypto-background bitcoin"></div>
+    <div class="crypto-background ethereum"></div>
+    <div class="crypto-background cardano"></div>
+    <div class="crypto-background solana"></div>
+    <div class="crypto-background polygon"></div>
+    <div class="crypto-background binance"></div>
+    <div class="gradient-overlay"></div>
+
+    <!-- 3D Particles -->
+    <div class="particles-3d" id="particles"></div>
+
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">CryptoWallet</div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/ab" class="active">About</a></li>
+                <li><a href="/con">Contact</a></li>
+                <li><a href="/profile">Profile</a></li>
+                <li><a href="/logout">Logout</a></li>
+                <li><a href="/login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="about-hero">
+            <h1>About CryptoWallet</h1>
+            <p>Advanced cryptocurrency price analysis and prediction platform powered by AI and deep learning algorithms. We provide real-time market insights and future price predictions to help you make informed investment decisions in the dynamic world of digital assets.</p>
+        </section>
+
+        <!-- Our Mission Section -->
+        <section class="content-section">
+            <h2>Our Mission</h2>
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3>🎯 Accurate Predictions</h3>
+                    <p>We leverage advanced machine learning algorithms and big data analytics to provide the most accurate cryptocurrency price predictions in the market. Our models analyze historical data, market trends, and real-time indicators.</p>
+                </div>
+                <div class="content-card">
+                    <h3>📊 Real-time Analysis</h3>
+                    <p>Get instant access to live market data, technical indicators, and sentiment analysis from multiple exchanges and social media platforms. Our real-time dashboard keeps you updated 24/7.</p>
+                </div>
+                <div class="content-card">
+                    <h3>🚀 Future-Ready Technology</h3>
+                    <p>Built on cutting-edge blockchain technology and AI frameworks, our platform evolves with the market to provide you with the most advanced trading tools and prediction models available.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Price Prediction Section -->
+        <section class="content-section prediction-section">
+            <h2>Price Predictions & Analysis</h2>
+            <p style="text-align: center; font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">
+                Our AI-powered prediction engine analyzes market data to forecast future price movements
+            </p>
+            <div class="prediction-grid">
+                <div class="prediction-card">
+                    <div class="crypto-symbol">₿</div>
+                    <h3>Bitcoin (BTC)</h3>
+                    <div class="price-info">
+                        <div class="current-price">$45,320.50</div>
+                        <div class="price-change positive">+5.2% (24h)</div>
+                    </div>
+                    <div class="prediction-timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Week</span>
+                            <span class="timeline-price">$48,500</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Month</span>
+                            <span class="timeline-price">$52,000</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">3 Months</span>
+                            <span class="timeline-price">$58,200</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="prediction-card">
+                    <div class="crypto-symbol">Ξ</div>
+                    <h3>Ethereum (ETH)</h3>
+                    <div class="price-info">
+                        <div class="current-price">$2,845.20</div>
+                        <div class="price-change positive">+3.8% (24h)</div>
+                    </div>
+                    <div class="prediction-timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Week</span>
+                            <span class="timeline-price">$3,100</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Month</span>
+                            <span class="timeline-price">$3,450</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">3 Months</span>
+                            <span class="timeline-price">$3,800</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prediction-card">
+                    <div class="crypto-symbol">◎</div>
+                    <h3>Solana (SOL)</h3>
+                    <div class="price-info">
+                        <div class="current-price">$98.45</div>
+                        <div class="price-change negative">-2.1% (24h)</div>
+                    </div>
+                    <div class="prediction-timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Week</span>
+                            <span class="timeline-price">$105</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">1 Month</span>
+                            <span class="timeline-price">$120</span>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-period">3 Months</span>
+                            <span class="timeline-price">$145</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Features Section -->
+        <section class="content-section">
+            <h2>Platform Features</h2>
+            <div class="content-grid">
+                <div class="content-card">
+                    <h3>🔮 AI-Powered Predictions</h3>
+                    <p>Our proprietary algorithms analyze thousands of data points including:</p>
+                    <ul>
+                        <li>Historical price patterns</li>
+                        <li>Trading volume analysis</li>
+                        <li>Market sentiment indicators</li>
+                        <li>Social media trends</li>
+                        <li>Technical indicators</li>
+                    </ul>
+                </div>
+                <div class="content-card">
+                    <h3>📈 Advanced Analytics</h3>
+                    <p>Comprehensive market analysis tools:</p>
+                    <ul>
+                        <li>Real-time price tracking</li>
+                        <li>Portfolio performance analysis</li>
+                        <li>Risk assessment tools</li>
+                        <li>Market correlation analysis</li>
+                        <li>Custom alert systems</li>
+                    </ul>
+                </div>
+                <div class="content-card">
+                    <h3>🛡️ Risk Management</h3>
+                    <p>Protect your investments with:</p>
+                    <ul>
+                        <li>Stop-loss recommendations</li>
+                        <li>Volatility predictions</li>
+                        <li>Portfolio diversification advice</li>
+                        <li>Market crash indicators</li>
+                        <li>Investment safety scores</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <h2>Platform Statistics</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Cryptocurrencies Tracked</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">92%</div>
+                    <div class="stat-label">Prediction Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">100K+</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Market Monitoring</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Live Ticker -->
+        <div class="crypto-ticker">
+            <div class="ticker-content" id="ticker">
+                <span class="ticker-item">BTC: $45,320.50 (+5.2%)</span>
+                <span class="ticker-item">ETH: $2,845.20 (+3.8%)</span>
+                <span class="ticker-item">SOL: $98.45 (-2.1%)</span>
+                <span class="ticker-item">ADA: $0.48 (+1.5%)</span>
+                <span class="ticker-item">MATIC: $0.85 (+4.2%)</span>
+                <span class="ticker-item">BNB: $315.80 (+2.9%)</span>
+                <span class="ticker-item">LINK: $14.25 (+6.1%)</span>
+                <span class="ticker-item">DOT: $5.85 (-1.8%)</span>
+                <span class="ticker-item">AVAX: $28.90 (+3.4%)</span>
+                <span class="ticker-item">ATOM: $9.12 (+1.9%)</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>CryptoVision</h3>
+                <p>Your trusted partner in cryptocurrency analysis and prediction. We provide cutting-edge tools and insights to help you navigate the complex world of digital assets with confidence.</p>
+                <div class="social-links">
+                    <a href="#" title="Twitter">🐦</a>
+                    <a href="#" title="Discord">💬</a>
+                    <a href="#" title="Telegram">✈️</a>
+                    <a href="#" title="LinkedIn">💼</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Platform</h3>
+                <ul>
+                    <li><a href="/analysis">Trading Dashboard</a></li>
+                    <li><a href="/predict">Price Predictions</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#help">Help Center</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                    <li><a href="#status">System Status</a></li>
+                    <li><a href="#feedback">Feedback</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#about">About Us</a></li>
+                    <li><a href="#careers">Careers</a></li>
+                    <li><a href="#privacy">Privacy Policy</a></li>
+                    <li><a href="#terms">Terms of Service</a></li>
+                    <li><a href="#security">Security</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>Newsletter</h3>
+                <p>Stay updated with the latest crypto trends, analysis, and predictions. Subscribe to our weekly newsletter for exclusive insights.</p>
+                <div style="margin-top: 1rem;">
+                    <input type="email" placeholder="Enter your email" style="padding: 0.8rem; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; border-radius: 25px; width: 100%; margin-bottom: 1rem;">
+                    <button style="background: linear-gradient(45deg, #f7931a, #627eea); color: white; border: none; padding: 0.8rem 2rem; border-radius: 25px; cursor: pointer; width: 100%; font-weight: bold;">Subscribe</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CryptoVision. All rights reserved. | Designed by Varun M C</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                ⚠️ Disclaimer: All predictions and analysis are for informational purposes only and should not be considered as financial advice.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Create 3D floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa', '#8247e5', '#f3ba2f'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-3d';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Animate background cryptocurrency images
+        function animateBackgrounds() {
+            const backgrounds = document.querySelectorAll('.crypto-background');
+            let currentBg = 0;
+            
+            function switchBackground() {
+                backgrounds.forEach((bg, index) => {
+                    bg.style.opacity = index === currentBg ? '0.15' : '0.05';
+                });
+                currentBg = (currentBg + 1) % backgrounds.length;
+            }
+            
+            setInterval(switchBackground, 3000);
+        }
+
+        // Update ticker with random price changes
+        function updateTicker() {
+            const tickerItems = document.querySelectorAll('.ticker-item');
+            
+            setInterval(() => {
+                tickerItems.forEach(item => {
+                    const text = item.textContent;
+                    const match = text.match(/\$[\d,]+\.?\d*/);
+                    if (match) {
+                        const currentPrice = parseFloat(match[0].replace(', '').replace(',', ''));
+                        const change = (Math.random() - 0.5) * 0.1; // ±5% max change
+                        const newPrice = currentPrice * (1 + change);
+                        const changePercent = (change * 100).toFixed(1);
+                        const changeSign = change >= 0 ? '+' : '';
+                        
+                        const symbol = text.split(':')[0];
+                        item.textContent = `${symbol}: ${newPrice.toFixed(2)} (${changeSign}${changePercent}%)`;
+                        
+                        // Update color based on change
+                        if (change >= 0) {
+                            item.style.color = '#00d4aa';
+                        } else {
+                            item.style.color = '#ff4757';
+                        }
+                    }
+                });
+            }, 5000);
+        }
+
+        // Smooth scrolling for navigation links
+        function setupSmoothScrolling() {
+            const navLinks = document.querySelectorAll('.nav-links a, .footer-section a');
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') && link.getAttribute('href').startsWith('#')) {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href').substring(1);
+                        const targetElement = document.getElementById(targetId);
+                        if (targetElement) {
+                            targetElement.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'start'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Animate cards on scroll
+        function setupScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all cards
+            const cards = document.querySelectorAll('.content-card, .prediction-card, .stat-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+                card.style.transition = `all 0.6s ease ${index * 0.1}s`;
+                observer.observe(card);
+            });
+        }
+
+        // Header scroll effect
+        function setupHeaderEffect() {
+            const header = document.querySelector('header');
+            let lastScrollY = window.scrollY;
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 100) {
+                    header.style.background = 'rgba(0, 0, 0, 0.95)';
+                    header.style.backdropFilter = 'blur(30px)';
+                } else {
+                    header.style.background = 'rgba(0, 0, 0, 0.9)';
+                    header.style.backdropFilter = 'blur(20px)';
+                }
+                
+                if (window.scrollY > lastScrollY && window.scrollY > 200) {
+                    header.style.transform = 'translateY(-100%)';
+                } else {
+                    header.style.transform = 'translateY(0)';
+                }
+                
+                lastScrollY = window.scrollY;
+            });
+        }
+
+        // Update prediction prices periodically
+        function updatePredictions() {
+            const priceElements = document.querySelectorAll('.current-price');
+            const changeElements = document.querySelectorAll('.price-change');
+            
+            setInterval(() => {
+                priceElements.forEach((element, index) => {
+                    const currentPrice = parseFloat(element.textContent.replace(', '').replace(',', ''));
+                    const change = (Math.random() - 0.5) * 0.05; // ±2.5% max change
+                    const newPrice = currentPrice * (1 + change);
+                    
+                    element.textContent = `${newPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                    
+                    // Update corresponding change percentage
+                    const changeElement = changeElements[index];
+                    if (changeElement) {
+                        const changePercent = (change * 100).toFixed(1);
+                        const changeSign = change >= 0 ? '+' : '';
+                        changeElement.textContent = `${changeSign}${changePercent}% (24h)`;
+                        changeElement.className = change >= 0 ? 'price-change positive' : 'price-change negative';
+                    }
+                });
+            }, 8000);
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            animateBackgrounds();
+            updateTicker();
+            setupSmoothScrolling();
+            setupScrollAnimations();
+            setupHeaderEffect();
+            updatePredictions();
+        });
+
+        // Add loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '1';
+        });
+
+        // Newsletter subscription handler
+        document.querySelector('button').addEventListener('click', function() {
+            const email = this.previousElementSibling.value;
+            if (email && email.includes('@')) {
+                this.textContent = 'Subscribed! ✓';
+                this.style.background = 'linear-gradient(45deg, #00d4aa, #9945ff)';
+                setTimeout(() => {
+                    this.textContent = 'Subscribe';
+                    this.style.background = 'linear-gradient(45deg, #f7931a, #627eea)';
+                }, 3000);
+            } else {
+                this.textContent = 'Invalid Email';
+                this.style.background = 'linear-gradient(45deg, #ff4757, #ff6b7d)';
+                setTimeout(() => {
+                    this.textContent = 'Subscribe';
+                    this.style.background = 'linear-gradient(45deg, #f7931a, #627eea)';
+                }, 2000);
+            }
+        });
+    </script>
+</body>
+</html>

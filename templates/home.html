@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoVerse - 3D Digital Assets Hub</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* 3D Animated Background */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(247, 147, 26, 0.1) 0%, rgba(98, 126, 234, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%);
+            animation: backgroundPulse 8s ease-in-out infinite;
+            z-index: -3;
+        }
+
+        @keyframes backgroundPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); filter: hue-rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); filter: hue-rotate(45deg); }
+        }
+
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.05), rgba(98, 126, 234, 0.05), rgba(153, 69, 255, 0.05));
+            z-index: -2;
+            animation: gradientShift 12s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* 3D Particles */
+        .particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle-3d {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: float3d 15s infinite linear;
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(100vh) translateX(0px) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(200px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 1rem;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::before {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.5);
+        }
+
+        /* User Menu Styles */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0.5rem 0;
+            min-width: 150px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            list-style: none;
+        }
+
+        .user-menu:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu li {
+            margin: 0;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-menu a:hover {
+            background: rgba(247, 147, 26, 0.2);
+            color: #f7931a;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 8rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #f7931a, #627eea, #9945ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 50px rgba(247, 147, 26, 0.3);
+            animation: titleGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .hero-text p {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.8;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 2.5rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(247, 147, 26, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(247, 147, 26, 0.5);
+        }
+
+        /* 3D Crypto Display */
+        .crypto-3d-display {
+            position: relative;
+            height: 600px;
+            perspective: 1000px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .crypto-coin-3d {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            transform-style: preserve-3d;
+            animation: orbit 20s linear infinite;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .crypto-coin-3d.active {
+            transform: scale(1.5) translateZ(50px);
+            z-index: 10;
+        }
+
+        .coin-face-3d {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .coin-face-3d.front {
+            background: linear-gradient(45deg, #f7931a, #ffb84d);
+            transform: rotateY(0deg) translateZ(10px);
+        }
+
+        .coin-face-3d.back {
+            background: linear-gradient(45deg, #d4760a, #f7931a);
+            transform: rotateY(180deg) translateZ(10px);
+        }
+
+        /* Individual coin styles with crypto logos */
+        .bitcoin-coin .coin-face-3d { background: linear-gradient(45deg, #f7931a, #ffb84d); color: white; }
+        .ethereum-coin .coin-face-3d { background: linear-gradient(45deg, #627eea, #8db3ff); color: white; }
+        .cardano-coin .coin-face-3d { background: linear-gradient(45deg, #0033ad, #3468db); color: white; }
+        .solana-coin .coin-face-3d { background: linear-gradient(45deg, #9945ff, #c084fc); color: white; }
+        .polygon-coin .coin-face-3d { background: linear-gradient(45deg, #8247e5, #a855f7); color: white; }
+        .binance-coin .coin-face-3d { background: linear-gradient(45deg, #f3ba2f, #fbbf24); color: white; }
+        .chainlink-coin .coin-face-3d { background: linear-gradient(45deg, #375bd2, #60a5fa); color: white; }
+        .polkadot-coin .coin-face-3d { background: linear-gradient(45deg, #e6007a, #f472b6); color: white; }
+        .avalanche-coin .coin-face-3d { background: linear-gradient(45deg, #e84142, #f87171); color: white; }
+        .cosmos-coin .coin-face-3d { background: linear-gradient(45deg, #2e3148, #6366f1); color: white; }
+
+        .coin-info-3d {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .crypto-coin-3d:hover .coin-info-3d,
+        .crypto-coin-3d.active .coin-info-3d {
+            opacity: 1;
+        }
+
+        .coin-name {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .coin-price {
+            font-size: 1.2rem;
+            color: #f7931a;
+            font-weight: bold;
+        }
+
+        /* Orbit animations for different coins */
+        .crypto-coin-3d:nth-child(1) { animation-delay: 0s; transform: translateZ(0px) rotateY(0deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(2) { animation-delay: -2s; transform: translateZ(0px) rotateY(36deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(3) { animation-delay: -4s; transform: translateZ(0px) rotateY(72deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(4) { animation-delay: -6s; transform: translateZ(0px) rotateY(108deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(5) { animation-delay: -8s; transform: translateZ(0px) rotateY(144deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(6) { animation-delay: -10s; transform: translateZ(0px) rotateY(180deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(7) { animation-delay: -12s; transform: translateZ(0px) rotateY(216deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(8) { animation-delay: -14s; transform: translateZ(0px) rotateY(252deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(9) { animation-delay: -16s; transform: translateZ(0px) rotateY(288deg) translateX(200px); }
+        .crypto-coin-3d:nth-child(10) { animation-delay: -18s; transform: translateZ(0px) rotateY(324deg) translateX(200px); }
+
+        @keyframes orbit {
+            from { transform: rotateY(0deg) translateX(200px) rotateY(0deg); }
+            to { transform: rotateY(360deg) translateX(200px) rotateY(-360deg); }
+        }
+
+        /* Crypto Ticker */
+        .crypto-ticker {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .ticker-content {
+            display: flex;
+            animation: scroll 30s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            margin-right: 4rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        @keyframes scroll {
+            from { transform: translateX(100%); }
+            to { transform: translateX(-100%); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 8rem 2rem;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 4rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.5s ease;
+            transform: translateY(20px);
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(247, 147, 26, 0.1), rgba(98, 126, 234, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card.animate {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(247, 147, 26, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 0 20px rgba(247, 147, 26, 0.5));
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #f7931a;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        /* Enhanced Footer */
+        footer {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(10, 10, 20, 0.95));
+            backdrop-filter: blur(30px);
+            border-top: 2px solid rgba(247, 147, 26, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 80%, rgba(247, 147, 26, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(98, 126, 234, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+            gap: 3rem;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .footer-section p {
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-section ul li a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .footer-section ul li a::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0;
+            transition: all 0.3s ease;
+            color: #f7931a;
+        }
+
+        .footer-section ul li a:hover {
+            color: #f7931a;
+            padding-left: 25px;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        .footer-section ul li a:hover::before {
+            opacity: 1;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .social-links a:hover {
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 10px 25px rgba(247, 147, 26, 0.3);
+        }
+
+        .newsletter-form {
+            margin-top: 1rem;
+        }
+
+        .newsletter-form input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 25px;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: #f7931a;
+            box-shadow: 0 0 15px rgba(247, 147, 26, 0.3);
+        }
+
+        .newsletter-form button {
+            width: 100%;
+            background: linear-gradient(45deg, #f7931a, #627eea);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-form button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .newsletter-form button:hover::before {
+            left: 100%;
+        }
+
+        .newsletter-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(247, 147, 26, 0.4);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-bottom p {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+
+            .crypto-3d-display {
+                height: 400px;
+                margin-top: 2rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* Scroll animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="crypto-background bitcoin"></div>
+    <div class="gradient-overlay"></div>
+    <div class="particles-3d"></div>
+
+    <header>
+        <nav>
+            <div class="logo">🚀 CryptoWallet</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="/analysis">Analysis</a></li>
+                <li><a href="/ab">About</a></li>
+                <li><a href="/con">Contact</a></li>
+                {% if current_user.is_authenticated %}
+                    <li class="user-menu">
+                        <a href="#" class="user-dropdown">
+                            <i class="fas fa-user"></i> {{ current_user.first_name }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/profile">Profile</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li><a href="/login">Login</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero" id="home">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Welcome to CryptoWallet 🌟</h1>
+                    <p>Experience the future of cryptocurrency trading with stunning 3D visualizations, real-time market data, and AI-powered predictions. Navigate the digital asset universe with confidence and precision.</p>
+                    <a href="/predict" class="cta-button">🚀 Start Trading</a>
+                </div>
+                <div class="crypto-3d-display">
+                    <div class="crypto-coin-3d active bitcoin-coin" data-name="Bitcoin" data-price="$67,234.50">
+                        <div class="coin-face-3d front">₿</div>
+                        <div class="coin-face-3d back">₿</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Bitcoin</div>
+                            <div class="coin-price">$67,234.50</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d ethereum-coin" data-name="Ethereum" data-price="$3,456.78">
+                        <div class="coin-face-3d front">Ξ</div>
+                        <div class="coin-face-3d back">Ξ</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Ethereum</div>
+                            <div class="coin-price">$3,456.78</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d cardano-coin" data-name="Cardano" data-price="$0.54">
+                        <div class="coin-face-3d front">₳</div>
+                        <div class="coin-face-3d back">₳</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Cardano</div>
+                            <div class="coin-price">$0.54</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d solana-coin" data-name="Solana" data-price="$124.89">
+                        <div class="coin-face-3d front">◎</div>
+                        <div class="coin-face-3d back">◎</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Solana</div>
+                            <div class="coin-price">$124.89</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d polygon-coin" data-name="Polygon" data-price="$1.23">
+                        <div class="coin-face-3d front">⬟</div>
+                        <div class="coin-face-3d back">⬟</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Polygon</div>
+                            <div class="coin-price">$1.23</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d binance-coin" data-name="Binance Coin" data-price="$598.42">
+                        <div class="coin-face-3d front">◆</div>
+                        <div class="coin-face-3d back">◆</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Binance</div>
+                            <div class="coin-price">$598.42</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d chainlink-coin" data-name="Chainlink" data-price="$15.67">
+                        <div class="coin-face-3d front">⬡</div>
+                        <div class="coin-face-3d back">⬡</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Chainlink</div>
+                            <div class="coin-price">$15.67</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d polkadot-coin" data-name="Polkadot" data-price="$8.92">
+                        <div class="coin-face-3d front">●</div>
+                        <div class="coin-face-3d back">●</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Polkadot</div>
+                            <div class="coin-price">$8.92</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d avalanche-coin" data-name="Avalanche" data-price="$42.15">
+                        <div class="coin-face-3d front">▲</div>
+                        <div class="coin-face-3d back">▲</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Avalanche</div>
+                            <div class="coin-price">$42.15</div>
+                        </div>
+                    </div>
+                    <div class="crypto-coin-3d cosmos-coin" data-name="Cosmos" data-price="$11.34">
+                        <div class="coin-face-3d front">⚛</div>
+                        <div class="coin-face-3d back">⚛</div>
+                        <div class="coin-info-3d">
+                            <div class="coin-name">Cosmos</div>
+                            <div class="coin-price">$11.34</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="crypto-ticker">
+            <div class="ticker-content">
+                <span class="ticker-item">🟡 BTC: $67,234.50 (+2.4%)</span>
+                <span class="ticker-item">🔷 ETH: $3,456.78 (-1.2%)</span>
+                <span class="ticker-item">🔵 ADA: $0.54 (+5.6%)</span>
+                <span class="ticker-item">🟣 SOL: $124.89 (+3.1%)</span>
+                <span class="ticker-item">🟠 MATIC: $1.23 (+4.2%)</span>
+                <span class="ticker-item">🟨 BNB: $598.42 (+1.8%)</span>
+                <span class="ticker-item">🔗 LINK: $15.67 (+1.9%)</span>
+                <span class="ticker-item">🔴 DOT: $8.92 (-0.8%)</span>
+                <span class="ticker-item">🔺 AVAX: $42.15 (+2.7%)</span>
+                <span class="ticker-item">⚛️ ATOM: $11.34 (+0.9%)</span>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <h2>Revolutionary Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌌</div>
+                    <h3>3D Asset Universe</h3>
+                    <p>Immerse yourself in a stunning 3D cryptocurrency universe with realistic coin models, orbital animations, and interactive visualizations that bring digital assets to life like never before.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-Time Lightning Data</h3>
+                    <p>Access live market data with microsecond precision. Our advanced streaming technology delivers instant price updates, volume changes, and market movements directly to your dashboard.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Military-Grade Security</h3>
+                    <p>Your assets are protected by enterprise-level security including multi-signature wallets, cold storage solutions, biometric authentication, and advanced threat detection systems.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Insights</h3>
+                    <p>Leverage artificial intelligence and machine learning algorithms for predictive analysis, automated trading signals, risk assessment, and personalized investment recommendations.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Professional Analytics</h3>
+                    <p>Access institutional-grade trading tools with advanced charting, technical indicators, portfolio optimization, and comprehensive market analysis for informed decision making.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌍</div>
+                    <h3>Global Network</h3>
+                    <p>Connect to a worldwide network of traders, access international markets, and benefit from global liquidity with support for 150+ cryptocurrencies across multiple blockchains.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Enhanced Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>🚀 CryptoVerse</h3>
+                <p>The ultimate destination for cryptocurrency enthusiasts and professional traders. We're revolutionizing the way you interact with digital assets through cutting-edge 3D visualization, AI-powered analytics, and institutional-grade security.</p>
+                <p>Join over 2 million users who trust CryptoVerse for their digital asset journey. Experience the future of cryptocurrency trading today.</p>
+                <div class="social-links">
+                    <a href="https://twitter.com/cryptoverse" title="Twitter">🐦</a>
+                    <a href="https://discord.gg/cryptoverse" title="Discord">💬</a>
+                    <a href="https://t.me/cryptoverse" title="Telegram">✈️</a>
+                    <a href="https://linkedin.com/company/cryptoverse" title="LinkedIn">💼</a>
+                    <a href="https://youtube.com/cryptoverse" title="YouTube">📺</a>
+                    <a href="https://reddit.com/r/cryptoverse" title="Reddit">🔴</a>
+                </div>
+            </div>
+            
+            <div class="footer-section">
+                <h3>🔥 Platform</h3>
+                <ul>
+                    <li><a href="/dashboard">Trading Dashboard</a></li>
+                    <li><a href="/predict">AI Predictions</a></li>
+                    <li><a href="/portfolio">Portfolio Manager</a></li>
+                    <li><a href="/analytics">Market Analytics</a></li>
+                    <li><a href="/staking">Staking Rewards</a></li>
+                    <li><a href="/defi">DeFi Hub</a></li>
+                    <li><a href="/nft">NFT Marketplace</a></li>
+                    <li><a href="/api">Developer API</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>💎 Trading</h3>
+                <ul>
+                    <li><a href="/spot">Spot Trading</a></li>
+                    <li><a href="/futures">Futures</a></li>
+                    <li><a href="/options">Options</a></li>
+                    <li><a href="/margin">Margin Trading</a></li>
+                    <li><a href="/copy-trading">Copy Trading</a></li>
+                    <li><a href="/algorithmic">Algo Trading</a></li>
+                    <li><a href="/institutional">Institutional</a></li>
+                    <li><a href="/otc">OTC Desk</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h3>🛠️ Support & Learn</h3>
+                <ul>
+                    <li><a href="/help">Help Center</a></li>
+                    <li><a href="/academy">Crypto Academy</a></li>
+                    <li><a href="/tutorials">Video Tutorials</a></li>
+                    <li><a href="/webinars">Live Webinars</a></li>
+                    <li><a href="/contact">24/7 Support</a></li>
+                    <li><a href="/community">Community Forum</a></li>
+                    <li><a href="/bug-bounty">Bug Bounty</a></li>
+                    <li><a href="/affiliate">Affiliate Program</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>📧 Stay Connected</h3>
+                <p>Get exclusive market insights, trading signals, and platform updates delivered directly to your inbox. Join our premium newsletter for professional traders.</p>
+                <div class="newsletter-form">
+                    <input type="email" placeholder="Enter your email address" required>
+                    <button type="submit">🚀 Subscribe to Premium Insights</button>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>🏆 Awards & Recognition</h3>
+                    <p style="color: #f7931a; font-weight: bold;">🥇 Best Crypto Platform 2024</p>
+                    <p style="color: #627eea; font-weight: bold;">🏅 Innovation Excellence Award</p>
+                    <p style="color: #9945ff; font-weight: bold;">⭐ 5-Star Security Rating</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 CryptoVerse Technologies Inc. All rights reserved worldwide. | Designed with ❤️ by Elite Dev Team</p>
+            <p style="margin-top: 1rem; font-size: 0.95rem; color: rgba(247, 147, 26, 0.8);">
+                🌟 Trusted by 2M+ users | 🔒 SOC 2 Certified | 🏛️ Regulated & Compliant | 💎 $50B+ Trading Volume
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.9rem;">
+                ⚠️ Risk Disclaimer: Cryptocurrency trading involves substantial risk and may result in partial or complete loss of funds. 
+                Past performance does not guarantee future results. Please trade responsibly and only invest what you can afford to lose.
+            </p>
+            <div style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;">
+                <a href="/terms" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s;">Terms of Service</a>
+                <a href="/privacy" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s;">Privacy Policy</a>
+                <a href="/cookies" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s;">Cookie Policy</a>
+                <a href="/compliance" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s;">Compliance</a>
+                <a href="/security" style="color: rgba(255,255,255,0.6); text-decoration: none; transition: color 0.3s;">Security</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced 3D Particle System
+        function createAdvancedParticles() {
+            const particlesContainer = document.querySelector('.particles-3d');
+            const particleCount = 80;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle-3d');
+                
+                // Crypto-themed colors with glow effects
+                const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa', '#8247e5', '#e84142', '#f3ba2f'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.backgroundColor = color;
+                particle.style.boxShadow = `0 0 20px ${color}`;
+                
+                // Random size and positioning
+                const size = Math.random() * 6 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 15 + 15) + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Advanced 3D Coin Rotation System
+        function setupAdvanced3DCoins() {
+            const coins = document.querySelectorAll('.crypto-coin-3d');
+            let currentIndex = 0;
+            let rotationInterval;
+
+            function rotateCoin() {
+                coins.forEach(coin => coin.classList.remove('active'));
+                coins[currentIndex].classList.add('active');
+                currentIndex = (currentIndex + 1) % coins.length;
+            }
+
+            // Auto rotation
+            rotationInterval = setInterval(rotateCoin, 4000);
+
+            // Enhanced mouse interactions
+            coins.forEach((coin, index) => {
+                coin.addEventListener('mouseenter', function() {
+                    clearInterval(rotationInterval);
+                    coins.forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    this.style.animationPlayState = 'paused';
+                    this.style.transform = 'scale(1.8) rotateY(180deg) rotateX(15deg) translateZ(100px)';
+                    this.style.boxShadow = '0 20px 60px rgba(247, 147, 26, 0.6)';
+                });
+
+                coin.addEventListener('mouseleave', function() {
+                    this.style.animationPlayState = 'running';
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                    rotationInterval = setInterval(rotateCoin, 4000);
+                });
+
+                // Click for detailed view
+                coin.addEventListener('click', function() {
+                    const coinName = this.dataset.name;
+                    const coinPrice = this.dataset.price;
+                    showCoinDetails(coinName, coinPrice);
+                });
+            });
+        }
+
+        // Coin details popup (simulated)
+        function showCoinDetails(name, price) {
+            const details = document.createElement('div');
+            details.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: rgba(0, 0, 0, 0.95);
+                backdrop-filter: blur(20px);
+                padding: 2rem;
+                border-radius: 20px;
+                border: 2px solid #f7931a;
+                color: white;
+                text-align: center;
+                z-index: 10000;
+                box-shadow: 0 20px 60px rgba(247, 147, 26, 0.4);
+            `;
+            details.innerHTML = `
+                <h2 style="color: #f7931a; margin-bottom: 1rem;">${name}</h2>
+                <p style="font-size: 1.5rem; margin-bottom: 1rem;">Current Price: ${price}</p>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 2rem;">Click outside to close</p>
+                <button onclick="this.parentElement.remove()" style="
+                    background: linear-gradient(45deg, #f7931a, #627eea);
+                    color: white;
+                    border: none;
+                    padding: 0.8rem 2rem;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: bold;
+                ">Trade Now</button>
+            `;
+            document.body.appendChild(details);
+
+            // Click outside to close
+            details.addEventListener('click', function(e) {
+                if (e.target === details) {
+                    details.remove();
+                }
+            });
+        }
+
+        // Scroll animations with intersection observer
+        function setupScrollAnimations() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate', 'visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all animatable elements
+            document.querySelectorAll('.feature-card, .fade-in').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // Enhanced header with scroll effects
+        function setupEnhancedHeader() {
+            const header = document.querySelector('header');
+            let lastScroll = 0;
+
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                
+                if (currentScroll > 100) {
+                    header.style.background = 'rgba(0, 0, 0, 0.98)';
+                    header.style.backdropFilter = 'blur(30px)';
+                    header.style.borderBottom = '2px solid rgba(247, 147, 26, 0.3)';
+                } else {
+                    header.style.background = 'rgba(0, 0, 0, 0.9)';
+                    header.style.backdropFilter = 'blur(20px)';
+                    header.style.borderBottom = '1px solid rgba(255, 255, 255, 0.1)';
+                }
+
+                // Auto-hide header on scroll down
+                if (currentScroll > lastScroll && currentScroll > 200) {
+                    header.style.transform = 'translateY(-100%)';
+                } else {
+                    header.style.transform = 'translateY(0)';
+                }
+                
+                lastScroll = currentScroll;
+            });
+        }
+
+        // Dynamic background color shifting
+        function setupDynamicBackground() {
+            const cryptoBackground = document.querySelector('.crypto-background');
+            const backgrounds = [
+                'radial-gradient(circle at 50% 50%, rgba(247, 147, 26, 0.15) 0%, rgba(98, 126, 234, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%)',
+                'radial-gradient(circle at 30% 70%, rgba(98, 126, 234, 0.15) 0%, rgba(153, 69, 255, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%)',
+                'radial-gradient(circle at 70% 30%, rgba(153, 69, 255, 0.15) 0%, rgba(232, 65, 66, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%)',
+                'radial-gradient(circle at 80% 80%, rgba(0, 212, 170, 0.15) 0%, rgba(247, 147, 26, 0.1) 50%, rgba(0, 0, 0, 0.9) 100%)'
+            ];
+            
+            let currentBgIndex = 0;
+            setInterval(() => {
+                cryptoBackground.style.background = backgrounds[currentBgIndex];
+                currentBgIndex = (currentBgIndex + 1) % backgrounds.length;
+            }, 6000);
+        }
+
+        // Smooth scrolling for all anchor links
+        function setupSmoothScrolling() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Newsletter subscription handler
+        function setupNewsletterForm() {
+            const form = document.querySelector('.newsletter-form');
+            const input = form.querySelector('input');
+            const button = form.querySelector('button');
+
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const email = input.value.trim();
+                if (email && email.includes('@')) {
+                    // Simulate subscription
+                    button.textContent = '✅ Subscribed!';
+                    button.style.background = 'linear-gradient(45deg, #10b981, #059669)';
+                    input.value = '';
+                    setTimeout(() => {
+                        button.textContent = '🚀 Subscribe to Premium Insights';
+                        button.style.background = 'linear-gradient(45deg, #f7931a, #627eea)';
+                    }, 3000);
+                } else {
+                    input.style.borderColor = '#ef4444';
+                    input.style.boxShadow = '0 0 15px rgba(239, 68, 68, 0.3)';
+                    setTimeout(() => {
+                        input.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                        input.style.boxShadow = 'none';
+                    }, 2000);
+                }
+            });
+        }
+
+        // Initialize all enhanced features
+        document.addEventListener('DOMContentLoaded', function() {
+            createAdvancedParticles();
+            setupAdvanced3DCoins();
+            setupScrollAnimations();
+            setupEnhancedHeader();
+            setupDynamicBackground();
+            setupSmoothScrolling();
+            setupNewsletterForm();
+            
+            // Add loading animation
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 1s ease-in-out';
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function requestTick() {
+            if (!ticking) {
+                requestAnimationFrame(updateAnimations);
+                ticking = true;
+            }
+        }
+
+        function updateAnimations() {
+            // Update any frame-based animations here
+            ticking = false;
+        }
+
+        // Add some interactive elements
+        document.addEventListener('mousemove', function(e) {
+            const particles = document.querySelectorAll('.particle-3d');
+            particles.forEach(particle => {
+                const rect = particle.getBoundingClientRect();
+                const dx = e.clientX - (rect.left + rect.width / 2);
+                const dy = e.clientY - (rect.top + rect.height / 2);
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (distance < 100) {
+                    particle.style.transform = `translate(${dx * 0.1}px, ${dy * 0.1}px) scale(1.5)`;
+                } else {
+                    particle.style.transform = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Price Analysis Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/2.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: white;
+        }
+
+        /* Animated Background with rotating crypto images */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.15;
+            background-size: 200px 200px;
+            animation: backgroundShift 20s infinite linear;
+        }
+
+        .crypto-background.bitcoin {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f7931a"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">₿</text></svg>');
+        }
+
+        .crypto-background.ethereum {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23627eea"/><text x="50" y="65" font-size="40" text-anchor="middle" fill="white">Ξ</text></svg>');
+        }
+
+        .crypto-background.cardano {
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%230033ad"/><text x="50" y="65" font-size="40" text-anchor="middle" fill="white">₳</text></svg>');
+        }
+
+        @keyframes backgroundShift {
+            0% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(-100px) translateY(-50px) rotate(90deg); }
+            50% { transform: translateX(-200px) translateY(-100px) rotate(180deg); }
+            75% { transform: translateX(-300px) translateY(-150px) rotate(270deg); }
+            100% { transform: translateX(-400px) translateY(-200px) rotate(360deg); }
+        }
+
+        /* Gradient overlay */
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, 
+                rgba(247, 147, 26, 0.1) 0%,
+                rgba(98, 126, 234, 0.1) 10%,
+                rgba(153, 69, 255, 0.1) 20%,
+                rgba(0, 212, 170, 0.1) 30%,
+                rgba(130, 71, 229, 0.1) 40%,
+                rgba(243, 186, 47, 0.1) 50%,
+                rgba(55, 91, 210, 0.1) 60%,
+                rgba(230, 0, 122, 0.1) 70%,
+                rgba(232, 65, 66, 0.1) 80%,
+                rgba(46, 49, 72, 0.1) 90%,
+                rgba(247, 147, 26, 0.1) 100%);
+            animation: gradientShift 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { opacity: 0.8; filter: hue-rotate(0deg); }
+            100% { opacity: 1; filter: hue-rotate(360deg); }
+        }
+
+        /* 3D Floating particles */
+        .particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle-3d {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: float3d 15s infinite linear;
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(100vh) translateX(0) rotateX(0deg) rotateY(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) translateX(20px) rotateX(30deg) rotateY(45deg) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(50vh) translateX(-30px) rotateX(180deg) rotateY(180deg) scale(1.5);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) translateX(50px) rotateX(300deg) rotateY(315deg) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(0) rotateX(360deg) rotateY(360deg) scale(0);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            min-height: 100vh;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f7931a, #627eea, #9945ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            line-height: 1.2;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(247, 147, 26, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(98, 126, 234, 0.6)); }
+            100% { filter: drop-shadow(0 0 30px rgba(153, 69, 255, 0.8)); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            color: #ffd700;
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #f7931a, #627eea);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .nav-btn::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px) rotateX(5deg);
+            box-shadow: 0 15px 30px rgba(247, 147, 26, 0.3);
+        }
+
+        .nav-btn:hover::before {
+            opacity: 1;
+            left: 100%;
+        }
+
+        /* Demo Notice */
+        .demo-notice {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            color: #ffd700;
+        }
+
+        /* Analysis Form */
+        .analysis-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .analysis-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.2);
+            border-color: rgba(247, 147, 26, 0.3);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #ffd700;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group select {
+            padding: 0.75rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #f7931a;
+            box-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        .form-group select option {
+            background: #000;
+            color: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #f7931a, #627eea);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(247, 147, 26, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Time Range Selector */
+        .time-range-selector {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .time-range-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .time-range-btn.active,
+        .time-range-btn:hover {
+            background: linear-gradient(135deg, #f7931a, #627eea);
+            border-color: #f7931a;
+            transform: translateY(-2px);
+        }
+
+        /* Statistics Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.2);
+            border-color: rgba(247, 147, 26, 0.5);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #4ecdc4;
+            text-shadow: 0 0 10px rgba(78, 205, 196, 0.5);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #ffd700;
+            font-size: 0.9rem;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .chart-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #ffd700;
+            font-size: 2rem;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .chart-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-control-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .chart-control-btn.active,
+        .chart-control-btn:hover {
+            background: linear-gradient(135deg, #4ecdc4, #627eea);
+            border-color: #4ecdc4;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #ffd700;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .chart-container {
+            height: 500px;
+            position: relative;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 1rem;
+        }
+
+        .error-message,
+        .info-message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: none;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            color: #ff6b6b;
+        }
+
+        .info-message {
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            color: #4ecdc4;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .nav-buttons,
+            .time-range-selector,
+            .chart-controls {
+                justify-content: center;
+                gap: 0.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background -->
+    <div class="crypto-background bitcoin"></div>
+    <div class="gradient-overlay"></div>
+    
+    <!-- 3D Particles -->
+    <div class="particles-3d" id="particles"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Crypto Price Analysis Dashboard</h1>
+            <p>Interactive cryptocurrency price analysis with real-time data visualization</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="nav-btn" onclick="window.location.href='/predict'">📈 Predict</button>
+            <button class="nav-btn" onclick="window.location.href='/profile'">👤 Profile</button>
+            <button class="nav-btn" onclick="exportData()">📥 Export Data</button>
+        </div>
+
+        <!-- Demo Notice -->
+        <div class="demo-notice">
+            <strong>🚀 Demo Mode:</strong> This dashboard demonstrates crypto analysis with simulated real-time data. In production, it would connect to live APIs.
+        </div>
+
+        <!-- Analysis Form -->
+        <div class="analysis-form">
+            <form id="analysisForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="ticker">Cryptocurrency</label>
+                        <select id="ticker" name="ticker" required>
+                            <option value="BTC-USD">Bitcoin (BTC)</option>
+                            <option value="ETH-USD">Ethereum (ETH)</option>
+                            <option value="ADA-USD">Cardano (ADA)</option>
+                            <option value="SOL-USD">Solana (SOL)</option>
+                            <option value="DOT-USD">Polkadot (DOT)</option>
+                            <option value="MATIC-USD">Polygon (MATIC)</option>
+                            <option value="LTC-USD">Litecoin (LTC)</option>
+                            <option value="LINK-USD">Chainlink (LINK)</option>
+                            <option value="XRP-USD">Ripple (XRP)</option>
+                            <option value="DOGE-USD">Dogecoin (DOGE)</option>
+                            <option value="AVAX-USD">Avalanche (AVAX)</option>
+                            <option value="ATOM-USD">Cosmos (ATOM)</option>
+                            <option value="ALGO-USD">Algorand (ALGO)</option>
+                            <option value="ICP-USD">Internet Computer (ICP)</option>
+                            <option value="UNI-USD">Uniswap (UNI)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timeRange">Time Range</label>
+                        <select id="timeRange" name="timeRange" required>
+                            <option value="1M">1 Month</option>
+                            <option value="3M">3 Months</option>
+                            <option value="6M">6 Months</option>
+                            <option value="1Y" selected>1 Year</option>
+                            <option value="2Y">2 Years</option>
+                            <option value="5Y">5 Years</option>
+                            <option value="MAX">All Time</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="analysisType">Analysis Type</label>
+                        <select id="analysisType" name="analysisType" required>
+                            <option value="price">Price Analysis</option>
+                            <option value="volume">Volume Analysis</option>
+                            <option value="volatility">Volatility Analysis</option>
+                            <option value="technical">Technical Indicators</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn" id="submitBtn">📊 Generate Analysis</button>
+            </form>
+        </div>
+
+        <!-- Time Range Quick Selector -->
+        <div class="time-range-selector" id="timeRangeSelector">
+            <button class="time-range-btn" data-range="1M">1M</button>
+            <button class="time-range-btn" data-range="3M">3M</button>
+            <button class="time-range-btn" data-range="6M">6M</button>
+            <button class="time-range-btn active" data-range="1Y">1Y</button>
+            <button class="time-range-btn" data-range="2Y">2Y</button>
+            <button class="time-range-btn" data-range="5Y">5Y</button>
+            <button class="time-range-btn" data-range="MAX">MAX</button>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <span class="stat-value" id="currentPrice">$0.00</span>
+                <div class="stat-label">Current Price</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="priceChange">+0.00%</span>
+                <div class="stat-label">24h Change</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="highPrice">$0.00</span>
+                <div class="stat-label">Period High</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="lowPrice">$0.00</span>
+                <div class="stat-label">Period Low</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="volume">$0</span>
+                <div class="stat-label">24h Volume</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-value" id="volatility">0.00%</span>
+                <div class="stat-label">Volatility</div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <h2 id="chartTitle">Price Chart</h2>
+            
+            <!-- Chart Controls -->
+            <div class="chart-controls">
+                <button class="chart-control-btn active" data-chart="line">Line Chart</button>
+                <button class="chart-control-btn" data-chart="candle">Candlestick</button>
+                <button class="chart-control-btn" data-chart="area">Area Chart</button>
+                <button class="chart-control-btn" data-chart="volume">Volume</button>
+            </div>
+            
+            <div class="loading" id="loadingIndicator">
+                Generating analysis...
+            </div>
+            
+            <div class="chart-container" id="chartContainer">
+                <canvas id="priceChart"></canvas>
+            </div>
+            
+            <div id="errorMessage" class="error-message">
+                <strong>⚠️ Error:</strong> <span id="errorText"></span>
+            </div>
+            
+            <div id="infoMessage" class="info-message">
+                <strong>ℹ️ Info:</strong> <span id="infoText"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chart = null;
+        let currentData = null;
+        let currentChartType = 'line';
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDashboard();
+            initializeParticles();
+            loadDemoData();
+        });
+
+        function initializeDashboard() {
+            // Form submission handler
+            document.getElementById('analysisForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                generateAnalysis();
+            });
+
+            // Time range selector handlers
+            document.querySelectorAll('.time-range-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-range-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('timeRange').value = this.dataset.range;
+                    generateAnalysis();
+                });
+            });
+
+            // Chart control handlers
+            document.querySelectorAll('.chart-control-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.chart-control-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentChartType = this.dataset.chart;
+                    if (currentData) {
+                        updateChart(currentData);
+                    }
+                });
+            });
+        }
+
+        function initializeParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa', '#ff6b6b'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-3d';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.boxShadow = `0 0 10px ${colors[Math.floor(Math.random() * colors.length)]}`;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        function generateAnalysis() {
+            const ticker = document.getElementById('ticker').value;
+            const timeRange = document.getElementById('timeRange').value;
+            const analysisType = document.getElementById('analysisType').value;
+
+            // Update chart title
+            const tickerName = document.getElementById('ticker').selectedOptions[0].text;
+            document.getElementById('chartTitle').textContent = `${tickerName} - ${analysisType.charAt(0).toUpperCase() + analysisType.slice(1)} (${timeRange})`;
+
+            // Show loading state
+            showLoading(true);
+            hideError();
+            hideInfo();
+
+            // Simulate API call with setTimeout
+            setTimeout(() => {
+                try {
+                    const data = generateSimulatedData(ticker, timeRange, analysisType);
+                    currentData = data;
+                    updateChart(data);
+                    updateStatistics(data);
+                    showInfo(`Analysis generated for ${tickerName} over ${timeRange} period`);
+                } catch (error) {
+                    showError('Failed to generate analysis: ' + error.message);
+                } finally {
+                    showLoading(false);
+                }
+            }, 1500);
+        }
+
+        function generateSimulatedData(ticker, timeRange, analysisType) {
+            const days = getTimeRangeDays(timeRange);
+            const data = [];
+            const now = new Date();
+            
+            // Base price based on ticker
+            const basePrices = {
+                'BTC-USD': 43000,
+                'ETH-USD': 2500,
+                'ADA-USD': 0.45,
+                'SOL-USD': 95,
+                'DOT-USD': 7.5,
+                'MATIC-USD': 0.85,
+                'LTC-USD': 73,
+                'LINK-USD': 15,
+                'XRP-USD': 0.62,
+                'DOGE-USD': 0.08,
+                'AVAX-USD': 35,
+                'ATOM-USD': 10,
+                'ALGO-USD': 0.18,
+                'ICP-USD': 12,
+                'UNI-USD': 6.5
+            };
+
+            let price = basePrices[ticker] || 100;
+            let volume = 1000000000;
+
+            for (let i = days; i >= 0; i--) {
+                const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+                
+                // Generate realistic price movement
+                const volatility = 0.05; // 5% daily volatility
+                const randomFactor = (Math.random() - 0.5) * 2 * volatility;
+                const trend = Math.sin(i / 30) * 0.001; // Long-term trend
+                
+                price *= (1 + randomFactor + trend);
+                volume *= (1 + (Math.random() - 0.5) * 0.3);
+
+                data.push({
+                    date: date.toISOString().split('T')[0],
+                    price: price,
+                    volume: volume,
+                    high: price * (1 + Math.random() * 0.02),
+                    low: price * (1 - Math.random() * 0.02),open: price * (1 + (Math.random() - 0.5) * 0.01),
+                    close: price
+                });
+            }
+
+            return data.reverse(); // Reverse to get chronological order
+        }
+
+        function getTimeRangeDays(timeRange) {
+            switch(timeRange) {
+                case '1M': return 30;
+                case '3M': return 90;
+                case '6M': return 180;
+                case '1Y': return 365;
+                case '2Y': return 730;
+                case '5Y': return 1825;
+                case 'MAX': return 2555; // ~7 years
+                default: return 365;
+            }
+        }
+
+        function updateChart(data) {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            
+            if (chart) {
+                chart.destroy();
+            }
+
+            const chartConfig = getChartConfig(data);
+            chart = new Chart(ctx, chartConfig);
+        }
+
+        function getChartConfig(data) {
+            const labels = data.map(item => item.date);
+            
+            switch(currentChartType) {
+                case 'line':
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Price ($)',
+                                data: data.map(item => item.price.toFixed(2)),
+                                borderColor: '#f7931a',
+                                backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                                borderWidth: 2,
+                                fill: false,
+                                tension: 0.1,
+                                pointRadius: 0,
+                                pointHoverRadius: 5
+                            }]
+                        },
+                        options: getBaseChartOptions()
+                    };
+                
+                case 'area':
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Price ($)',
+                                data: data.map(item => item.price.toFixed(2)),
+                                borderColor: '#627eea',
+                                backgroundColor: 'rgba(98, 126, 234, 0.2)',
+                                borderWidth: 2,
+                                fill: true,
+                                tension: 0.4,
+                                pointRadius: 0,
+                                pointHoverRadius: 5
+                            }]
+                        },
+                        options: getBaseChartOptions()
+                    };
+                
+                case 'volume':
+                    return {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Volume',
+                                data: data.map(item => (item.volume / 1000000).toFixed(2)),
+                                backgroundColor: 'rgba(78, 205, 196, 0.6)',
+                                borderColor: '#4ecdc4',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            ...getBaseChartOptions(),
+                            scales: {
+                                y: {
+                                    ...getBaseChartOptions().scales.y,
+                                    title: {
+                                        display: true,
+                                        text: 'Volume (Millions)',
+                                        color: '#ffd700'
+                                    }
+                                }
+                            }
+                        }
+                    };
+                
+                case 'candle':
+                    // Simplified candlestick using line chart with high/low
+                    return {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'High',
+                                    data: data.map(item => item.high.toFixed(2)),
+                                    borderColor: '#00d4aa',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 1,
+                                    fill: false,
+                                    pointRadius: 0
+                                },
+                                {
+                                    label: 'Price',
+                                    data: data.map(item => item.price.toFixed(2)),
+                                    borderColor: '#f7931a',
+                                    backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                                    borderWidth: 2,
+                                    fill: '+1',
+                                    pointRadius: 0
+                                },
+                                {
+                                    label: 'Low',
+                                    data: data.map(item => item.low.toFixed(2)),
+                                    borderColor: '#ff6b6b',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 1,
+                                    fill: false,
+                                    pointRadius: 0
+                                }
+                            ]
+                        },
+                        options: getBaseChartOptions()
+                    };
+                
+                default:
+                    return getChartConfig(data); // Default to line
+            }
+        }
+
+        function getBaseChartOptions() {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#ffd700'
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffd700',
+                        bodyColor: '#ffffff'
+                    }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffd700',
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        display: true,
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        },
+                        ticks: {
+                            color: '#ffd700',
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Price ($)',
+                            color: '#ffd700'
+                        }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
+                }
+            };
+        }
+
+        function updateStatistics(data) {
+            if (!data || data.length === 0) return;
+
+            const prices = data.map(item => item.price);
+            const volumes = data.map(item => item.volume);
+            
+            const currentPrice = prices[prices.length - 1];
+            const previousPrice = prices[prices.length - 2] || currentPrice;
+            const priceChange = ((currentPrice - previousPrice) / previousPrice) * 100;
+            const highPrice = Math.max(...prices);
+            const lowPrice = Math.min(...prices);
+            const avgVolume = volumes.reduce((a, b) => a + b, 0) / volumes.length;
+            
+            // Calculate volatility (standard deviation of returns)
+            const returns = [];
+            for (let i = 1; i < prices.length; i++) {
+                returns.push(Math.log(prices[i] / prices[i-1]));
+            }
+            const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
+            const volatility = Math.sqrt(returns.reduce((a, b) => a + Math.pow(b - avgReturn, 2), 0) / returns.length) * 100 * Math.sqrt(252);
+
+            // Update UI
+            document.getElementById('currentPrice').textContent = '$' + currentPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('priceChange').textContent = (priceChange >= 0 ? '+' : '') + priceChange.toFixed(2) + '%';
+            document.getElementById('priceChange').style.color = priceChange >= 0 ? '#4ecdc4' : '#ff6b6b';
+            document.getElementById('highPrice').textContent = '$' + highPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('lowPrice').textContent = '$' + lowPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('volume').textContent = '$' + (avgVolume / 1000000000).toFixed(2) + 'B';
+            document.getElementById('volatility').textContent = volatility.toFixed(2) + '%';
+        }
+
+        function loadDemoData() {
+            // Load default data on page load
+            setTimeout(() => {
+                generateAnalysis();
+            }, 1000);
+        }
+
+        function showLoading(show) {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (show) {
+                loadingIndicator.style.display = 'block';
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Analyzing...';
+            } else {
+                loadingIndicator.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📊 Generate Analysis';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function showInfo(message) {
+            const infoDiv = document.getElementById('infoMessage');
+            const infoText = document.getElementById('infoText');
+            infoText.textContent = message;
+            infoDiv.style.display = 'block';
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                hideInfo();
+            }, 3000);
+        }
+
+        function hideInfo() {
+            document.getElementById('infoMessage').style.display = 'none';
+        }
+
+        function exportData() {
+            if (!currentData) {
+                showError('No data to export. Please generate an analysis first.');
+                return;
+            }
+
+            try {
+                const ticker = document.getElementById('ticker').value;
+                const timeRange = document.getElementById('timeRange').value;
+                const analysisType = document.getElementById('analysisType').value;
+                
+                const exportData = {
+                    ticker: ticker,
+                    timeRange: timeRange,
+                    analysisType: analysisType,
+                    exportDate: new Date().toISOString(),
+                    data: currentData
+                };
+
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `crypto-analysis-${ticker}-${timeRange}-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                
+                URL.revokeObjectURL(url);
+                showInfo('Data exported successfully!');
+            } catch (error) {
+                showError('Failed to export data: ' + error.message);
+            }
+        }
+
+        // Auto-refresh data every 30 seconds in demo mode
+        setInterval(() => {
+            if (currentData && document.getElementById('ticker').value) {
+                // Update only the last data point to simulate real-time updates
+                const lastPoint = currentData[currentData.length - 1];
+                const volatility = 0.005; // 0.5% micro volatility
+                const randomFactor = (Math.random() - 0.5) * 2 * volatility;
+                
+                lastPoint.price *= (1 + randomFactor);
+                lastPoint.close = lastPoint.price;
+                lastPoint.high = Math.max(lastPoint.high, lastPoint.price);
+                lastPoint.low = Math.min(lastPoint.low, lastPoint.price);
+                
+                updateChart(currentData);
+                updateStatistics(currentData);
+            }
+        }, 30000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'Enter':
+                        e.preventDefault();
+                        generateAnalysis();
+                        break;
+                    case 'e':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

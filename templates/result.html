@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results - {{ ticker }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Animated Background with rotating crypto images */
+        .crypto-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.08;
+            background-size: 200px 200px;
+            animation: backgroundShift 20s infinite linear;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%23f7931a"/><text x="50" y="65" font-size="50" text-anchor="middle" fill="white">₿</text></svg>');
+        }
+
+        @keyframes backgroundShift {
+            0% { transform: translateX(0) translateY(0) rotate(0deg); }
+            25% { transform: translateX(-100px) translateY(-50px) rotate(90deg); }
+            50% { transform: translateX(-200px) translateY(-100px) rotate(180deg); }
+            75% { transform: translateX(-300px) translateY(-150px) rotate(270deg); }
+            100% { transform: translateX(-400px) translateY(-200px) rotate(360deg); }
+        }
+
+        /* Gradient overlay */
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, 
+                rgba(247, 147, 26, 0.05) 0%,
+                rgba(98, 126, 234, 0.05) 20%,
+                rgba(153, 69, 255, 0.05) 40%,
+                rgba(0, 212, 170, 0.05) 60%,
+                rgba(130, 71, 229, 0.05) 80%,
+                rgba(247, 147, 26, 0.05) 100%);
+            animation: gradientShift 12s ease-in-out infinite alternate;
+        }
+
+        @keyframes gradientShift {
+            0% { opacity: 0.3; filter: hue-rotate(0deg); }
+            100% { opacity: 0.6; filter: hue-rotate(360deg); }
+        }
+
+        /* 3D Floating particles */
+        .particles-3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle-3d {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: rgba(247, 147, 26, 0.6);
+            animation: float3d 15s infinite linear;
+        }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            margin: 0 0.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .nav-btn:hover {
+            background: rgba(247, 147, 26, 0.2);
+            border-color: #f7931a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(247, 147, 26, 0.3);
+        }
+
+        @keyframes float3d {
+            0% {
+                transform: translateY(100vh) translateX(0) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) translateX(20px) scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(50vh) translateX(-30px) scale(1.5);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) translateX(50px) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-10vh) translateX(0) scale(0);
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #f7931a, #627eea, #9945ff, #00d4aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleGlow 4s ease-in-out infinite alternate;
+            line-height: 1.2;
+        }
+
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(247, 147, 26, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(98, 126, 234, 0.6)); }
+            100% { filter: drop-shadow(0 0 30px rgba(153, 69, 255, 0.8)); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            color: #00d4aa;
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.3);
+        }
+
+        /* Glass Card Effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.5s ease;
+            transform-style: preserve-3d;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px) rotateX(2deg);
+            box-shadow: 0 30px 60px rgba(247, 147, 26, 0.2);
+            border-color: rgba(247, 147, 26, 0.3);
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        /* Main Chart */
+        .main-chart-card {
+            min-height: 500px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Statistics Card */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            padding-left: 1rem;
+            border-left: 3px solid #f7931a;
+            background: rgba(247, 147, 26, 0.05);
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.8;
+            color: #ffffff;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #00d4aa;
+            text-shadow: 0 0 10px rgba(0, 212, 170, 0.5);
+        }
+
+        .stat-current .stat-value { color: #4ecdc4; }
+        .stat-high .stat-value { color: #00d4aa; }
+        .stat-low .stat-value { color: #ff6b6b; }
+        .stat-avg .stat-value { color: #a78bfa; }
+        .stat-change .stat-value { color: #ffd700; }
+
+        /* Trend Card */
+        .trend-chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        .trend-indicator {
+            text-align: center;
+        }
+
+        .trend-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-weight: bold;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .trend-badge:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(247, 147, 26, 0.3);
+        }
+
+        .trend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .trend-up { border-color: #00d4aa; color: #00d4aa; }
+        .trend-up .trend-dot { background: #00d4aa; box-shadow: 0 0 10px #00d4aa; }
+
+        .trend-down { border-color: #ff6b6b; color: #ff6b6b; }
+        .trend-down .trend-dot { background: #ff6b6b; box-shadow: 0 0 10px #ff6b6b; }
+
+        .trend-stable { border-color: #ffd700; color: #ffd700; }
+        .trend-stable .trend-dot { background: #ffd700; box-shadow: 0 0 10px #ffd700; }
+
+        /* Table Styling */
+        .table-card {
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 2rem 2rem 1rem 2rem;
+        }
+
+        .table-header h2 {
+            font-size: 1.8rem;
+            color: #f7931a;
+            text-shadow: 0 0 10px rgba(247, 147, 26, 0.3);
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            max-height: 500px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: rgba(247, 147, 26, 0.1);
+            color: #f7931a;
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid rgba(247, 147, 26, 0.3);
+            position: sticky;
+            top: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        tr:hover {
+            background: rgba(247, 147, 26, 0.05);
+            transform: scale(1.01);
+        }
+
+        .bg-white { background: rgba(255, 255, 255, 0.02); }
+        .bg-gray-50 { background: rgba(255, 255, 255, 0.05); }
+
+        .text-green-600 { color: #00d4aa; text-shadow: 0 0 5px rgba(0, 212, 170, 0.5); }
+        .text-red-600 { color: #ff6b6b; text-shadow: 0 0 5px rgba(255, 107, 107, 0.5); }
+        .text-gray-900 { color: #ffffff; }
+        .font-medium { font-weight: 600; }
+        .font-semibold { font-weight: 700; }
+
+        .bg-green-100 { 
+            background: rgba(0, 212, 170, 0.2); 
+            border: 1px solid rgba(0, 212, 170, 0.3); 
+        }
+        .bg-red-100 { 
+            background: rgba(255, 107, 107, 0.2); 
+            border: 1px solid rgba(255, 107, 107, 0.3); 
+        }
+        .text-green-800 { color: #00d4aa; }
+        .text-red-800 { color: #ff6b6b; }
+
+        .inline-flex { display: inline-flex; }
+        .items-center { align-items: center; }
+        .px-2\.5 { padding-left: 0.625rem; padding-right: 0.625rem; }
+        .py-0\.5 { padding-top: 0.125rem; padding-bottom: 0.125rem; }
+        .rounded-full { border-radius: 9999px; }
+        .text-xs { font-size: 0.75rem; }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .action-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f7931a, #627eea);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #9945ff, #00d4aa);
+            color: white;
+        }
+
+        .action-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+            transform: rotate(45deg);
+            transition: all 0.5s ease;
+            opacity: 0;
+        }
+
+        .action-button:hover {
+            transform: translateY(-5px) rotateX(10deg);
+            box-shadow: 0 20px 40px rgba(247, 147, 26, 0.3);
+        }
+
+        .action-button:hover::before {
+            opacity: 1;
+            left: 100%;
+        }
+
+        .button-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-content {
+                padding: 1.5rem;
+            }
+            
+            .chart-container,
+            .trend-chart-container {
+                height: 300px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .action-button {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .table-wrapper {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background Elements -->
+    <div class="crypto-background"></div>
+    <div class="gradient-overlay"></div>
+    <div class="particles-3d" id="particles"></div>
+
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons" style="text-align: center; margin-bottom: 2rem;">
+            <button class="nav-btn" onclick="window.location.href='/'">🏠 Home</button>
+            <button class="nav-btn" onclick="window.location.href='/predict'">📈 Predict</button>
+            {% if current_user.is_authenticated %}
+                <button class="nav-btn" onclick="window.location.href='/profile'">👤 Profile</button>
+                <button class="nav-btn" onclick="window.location.href='/logout'">🚪 Logout</button>
+            {% else %}
+                <button class="nav-btn" onclick="window.location.href='/login'">🔑 Login</button>
+            {% endif %}
+        </div>
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>{{ ticker }} Price Analysis</h1>
+            <p>Historical data and future predictions</p>
+        </div>
+
+        <!-- Main Chart - Full Width -->
+        <div class="glass-card main-chart-card">
+            <div class="card-content">
+                <div class="card-title">
+                    📈 Price Chart
+                    <span style="font-size: 1rem; font-weight: normal; opacity: 0.8;">Historical vs Predicted Prices ({{ currency_code }})</span>
+                </div>
+                <div class="chart-container">
+                    <canvas id="mainChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout for Additional Info -->
+        <div class="stats-grid">
+            
+            <!-- Statistics Card -->
+            <div class="glass-card stats-card">
+                <div class="card-content">
+                    <div class="card-title">📊 Price Statistics</div>
+                    <div class="stat-item stat-current">
+                        <span class="stat-label">Current Price</span>
+                        <span class="stat-value" id="currentPrice">-</span>
+                    </div>
+                    <div class="stat-item stat-high">
+                        <span class="stat-label">Predicted High</span>
+                        <span class="stat-value" id="predictedHigh">-</span>
+                    </div>
+                    <div class="stat-item stat-low">
+                        <span class="stat-label">Predicted Low</span>
+                        <span class="stat-value" id="predictedLow">-</span>
+                    </div>
+                    <div class="stat-item stat-avg">
+                        <span class="stat-label">Average Prediction</span>
+                        <span class="stat-value" id="avgPrediction">-</span>
+                    </div>
+                    <div class="stat-item stat-change">
+                        <span class="stat-label">Potential Change</span>
+                        <span class="stat-value" id="potentialChange">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mini Price Trend Chart -->
+            <div class="glass-card trend-card">
+                <div class="card-content">
+                    <div class="card-title">📈 Price Trend Analysis</div>
+                    <div class="trend-chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                    <div class="trend-indicator">
+                        <div class="trend-badge" id="trendIndicator">
+                            <span class="trend-dot" id="trendDot"></span>
+                            <span id="trendText">Analyzing trend...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions Table - Full Width -->
+        <div class="glass-card table-card">
+            <div class="table-header">
+                <h2>📋 Detailed Predictions</h2>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>📅 Date</th>
+                            <th>💰 Predicted Price</th>
+                            <th>📊 Change from Previous</th>
+                            <th>📈 % Change</th>
+                            <th>🎯 Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="predictionsTable">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/predict" class="action-button btn-primary">
+                <svg class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                New Prediction
+            </a>
+            <button onclick="exportData()" class="action-button btn-secondary">
+                <svg class="button-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Export Data
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const colors = ['#f7931a', '#627eea', '#9945ff', '#00d4aa', '#ffd700'];
+            
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-3d';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Initialize particles
+        createParticles();
+
+        // Data from Flask
+        const historicalDates = {{ historical_dates | tojson }};
+        const historicalPrices = {{ historical_prices | tojson }};
+        const futureDates = {{ future_dates | tojson }};
+        const futurePredictions = {{ future_predictions | tojson }};
+        const ticker = {{ ticker | tojson }};
+        const currencyCode = {{ currency_code | tojson }};
+
+        // Calculate statistics
+        const currentPrice = historicalPrices[historicalPrices.length - 1];
+        const predictedHigh = Math.max(...futurePredictions);
+        const predictedLow = Math.min(...futurePredictions);
+        const avgPrediction = futurePredictions.reduce((a, b) => a + b, 0) / futurePredictions.length;
+        const potentialChange = ((avgPrediction - currentPrice) / currentPrice * 100);
+
+        // Update statistics display
+        document.getElementById('currentPrice').textContent = `${currentPrice.toFixed(2)} ${currencyCode}`;
+        document.getElementById('predictedHigh').textContent = `${predictedHigh.toFixed(2)} ${currencyCode}`;
+        document.getElementById('predictedLow').textContent = `${predictedLow.toFixed(2)} ${currencyCode}`;
+        document.getElementById('avgPrediction').textContent = `${avgPrediction.toFixed(2)} ${currencyCode}`;
+        document.getElementById('potentialChange').textContent = `${potentialChange > 0 ? '+' : ''}${potentialChange.toFixed(2)}%`;
+
+        // Chart.js configurations with enhanced styling
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#ffffff',
+                        font: { size: 14, weight: 'bold' },
+                        usePointStyle: true,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#ffd700',
+                    bodyColor: '#ffffff',
+                    borderColor: '#ffd700',
+                    borderWidth: 1,
+                    cornerRadius: 10,
+                    displayColors: true
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { 
+                        color: '#ffffff',
+                        font: { size: 12 },
+                        autoSkip: true,
+                        maxTicksLimit: 12
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    title: { 
+                        display: true, 
+                        text: 'Date',
+                        color: '#ffd700',
+                        font: { weight: 'bold', size: 14 }
+                    }
+                },
+                y: {
+                    ticks: { 
+                        color: '#ffffff',
+                        font: { size: 12 },
+                        callback: function(value) {
+                            return value.toFixed(2) + ' ' + currencyCode;
+                        }
+                    },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    title: { 
+                        display: true, 
+                        text: `Price (${currencyCode})`,
+                        color: '#ffd700',
+                        font: { weight: 'bold', size: 14 }
+                    }
+                }
+            }
+        };
+
+        // Main Chart
+        const mainCtx = document.getElementById('mainChart').getContext('2d');
+        const mainChart = new Chart(mainCtx, {
+            type: 'line',
+            data: {
+                labels: [...historicalDates, ...futureDates],
+                datasets: [
+                    {
+                        label: 'Historical Price',
+                        data: [...historicalPrices, ...Array(futurePredictions.length).fill(null)],
+                        borderColor: '#4ecdc4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        borderWidth: 3,
+                        pointRadius: 3,
+                        pointHoverRadius: 8,
+                        pointBackgroundColor: '#4ecdc4',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Predicted Price',
+                        data: [...Array(historicalPrices.length).fill(null), ...futurePredictions],
+                        borderColor: '#ff6b6b',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        borderWidth: 3,
+                        borderDash: [8, 4],
+                        pointRadius: 5,
+                        pointHoverRadius: 10,
+                        pointBackgroundColor: '#ff6b6b',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                ...chartOptions,
+                plugins: {
+                    ...chartOptions.plugins,
+                    title: {
+                        display: true,
+                        text: `${ticker} Price Analysis`,
+                        color: '#ffd700',
+                        font: { size: 18, weight: 'bold' }
+                    }
+                }
+            }
+        });
+
+        // Trend Chart (simplified view)
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: futureDates,
+                datasets: [{
+                    label: 'Prediction Trend',
+                    data: futurePredictions,
+                    borderColor: '#a78bfa',
+                    backgroundColor: 'rgba(167, 139, 250, 0.2)',
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: '#a78bfa',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffd700',
+                        bodyColor: '#ffffff',
+                        borderColor: '#ffd700',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { 
+                        display: false,
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Determine trend
+        const firstPred = futurePredictions[0];
+        const lastPred = futurePredictions[futurePredictions.length - 1];
+        const trendDirection = lastPred > firstPred ? 'up' : lastPred < firstPred ? 'down' : 'stable';
+        
+        const trendIndicator = document.getElementById('trendIndicator');
+        const trendDot = document.getElementById('trendDot');
+        const trendText = document.getElementById('trendText');
+
+    if (trendDirection === 'up') {
+            trendIndicator.className += ' trend-up';
+            trendText.textContent = '↗ Upward Trend';
+        } else if (trendDirection === 'down') {
+            trendIndicator.className += ' trend-down';
+            trendText.textContent = '↘ Downward Trend';
+        } else {
+            trendIndicator.className += ' trend-stable';
+            trendText.textContent = '→ Stable Trend';
+        }
+
+        // Populate predictions table
+        const tableBody = document.getElementById('predictionsTable');
+        futureDates.forEach((date, index) => {
+            const price = futurePredictions[index];
+            const prevPrice = index > 0 ? futurePredictions[index - 1] : currentPrice;
+            const change = price - prevPrice;
+            const percentChange = (change / prevPrice * 100);
+            
+            const row = document.createElement('tr');
+            row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            
+            const trendClass = change > 0 ? 'text-green-600' : change < 0 ? 'text-red-600' : 'text-gray-900';
+            const changeSymbol = change > 0 ? '+' : '';
+            const trendIcon = change > 0 ? '📈' : change < 0 ? '📉' : '➡️';
+            const trendLabel = change > 0 ? 'Bullish' : change < 0 ? 'Bearish' : 'Neutral';
+            const badgeClass = change > 0 ? 'bg-green-100 text-green-800' : change < 0 ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800';
+            
+            row.innerHTML = `
+                <td class="font-medium text-gray-900">${date}</td>
+                <td class="font-semibold text-gray-900">${price.toFixed(2)} ${currencyCode}</td>
+                <td class="${trendClass} font-medium">${changeSymbol}${change.toFixed(2)} ${currencyCode}</td>
+                <td class="${trendClass} font-medium">${changeSymbol}${percentChange.toFixed(2)}%</td>
+                <td>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">
+                        ${trendIcon} ${trendLabel}
+                    </span>
+                </td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+
+        // Export functionality
+        function exportData() {
+            const data = {
+                ticker: ticker,
+                currency: currencyCode,
+                historical: {
+                    dates: historicalDates,
+                    prices: historicalPrices
+                },
+                predictions: {
+                    dates: futureDates,
+                    prices: futurePredictions
+                },
+                statistics: {
+                    currentPrice: currentPrice,
+                    predictedHigh: predictedHigh,
+                    predictedLow: predictedLow,
+                    avgPrediction: avgPrediction,
+                    potentialChange: potentialChange
+                },
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${ticker}_predictions_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Add smooth scroll animations for better UX
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animate cards on scroll
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+            observer.observe(card);
+        });
+
+        // Add dynamic background particle interactions
+        let mouseX = 0, mouseY = 0;
+        
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX / window.innerWidth;
+            mouseY = e.clientY / window.innerHeight;
+            
+            const particles = document.querySelectorAll('.particle-3d');
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 0.5;
+                const x = (mouseX - 0.5) * speed * 50;
+                const y = (mouseY - 0.5) * speed * 50;
+                particle.style.transform += ` translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Add loading animations
+        setTimeout(() => {
+            document.querySelectorAll('.glass-card').forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        }, 100);
+
+        // Chart refresh functionality
+        function refreshCharts() {
+            mainChart.update('active');
+            trendChart.update('active');
+        }
+
+        // Auto-refresh data every 5 minutes (in a real app, you'd fetch new data)
+        setInterval(() => {
+            // In a real application, you would fetch updated data here
+            refreshCharts();
+        }, 300000); // 5 minutes
+
+        // Enhanced table interactions
+        document.querySelectorAll('#predictionsTable tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'scale(1.02)';
+                row.style.boxShadow = '0 5px 15px rgba(247, 147, 26, 0.2)';
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'scale(1)';
+                row.style.boxShadow = 'none';
+            });
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'e':
+                        e.preventDefault();
+                        exportData();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        refreshCharts();
+                        break;
+                }
+            }
+        });
+
+        // Performance optimization: Pause animations when tab is not visible
+        document.addEventListener('visibilitychange', () => {
+            const particles = document.querySelectorAll('.particle-3d');
+            if (document.hidden) {
+                particles.forEach(p => p.style.animationPlayState = 'paused');
+            } else {
+                particles.forEach(p => p.style.animationPlayState = 'running');
+            }
+        });
+
+        // Add touch support for mobile
+        if ('ontouchstart' in window) {
+            document.querySelectorAll('.glass-card').forEach(card => {
+                card.addEventListener('touchstart', () => {
+                    card.style.transform = 'translateY(-5px) rotateX(1deg)';
+                });
+                
+                card.addEventListener('touchend', () => {
+                    setTimeout(() => {
+                        card.style.transform = 'translateY(0) rotateX(0deg)';
+                    }, 150);
+                });
+            });
+        }
+
+        console.log('🚀 Crypto Dashboard initialized successfully!');
+        console.log(`📊 Loaded data for ${ticker} with ${historicalPrices.length} historical points and ${futurePredictions.length} predictions`);
+    </script>
+</body>
+</html>
