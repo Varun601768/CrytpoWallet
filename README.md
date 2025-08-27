@@ -68,7 +68,7 @@ This project is licensed under the [License](LICENSE) terms.
 ## 🚀 Installation
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/CryptoWallet.git
+git clone https://github.com/yvarun/CryptoWallet.git
 cd CryptoWallet
 
 # Install dependencies
