@@ -59,8 +59,13 @@ Predict **future prices**, analyze **market sentiment**, and visualize **crypto 
 
 ---
 
-## 🚀 Installation
 
+## License
+Copyright (c) 2025 [Varun M C].  
+All rights reserved.  
+This project is licensed under the [License](LICENSE) terms.
+
+## 🚀 Installation
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/CryptoWallet.git
