@@ -76,3 +76,6 @@ pip install -r requirements.txt
 
 # Run Flask app
 python app.py
+
+## 🚀 Deployment
+https://crytpowallet-1.onrender.com
