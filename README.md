@@ -66,7 +66,7 @@ All rights reserved.
 This project is licensed under the [License](LICENSE) terms.
 
 ##  Deployment
-```bash
+
 **[Crptowallet]([https://crytpowallet-1.onrender.com])**
 
 ## 🚀 Installation
