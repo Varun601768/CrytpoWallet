@@ -666,7 +666,7 @@ def home():
 @app.route('/analysis')
 @login_required
 def analysis():
-    return render_template('analysis.html',result="Test value")
+    return render_template('analysis.html')
 
 @app.route('/con')
 @login_required
