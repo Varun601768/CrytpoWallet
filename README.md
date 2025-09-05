@@ -65,9 +65,10 @@ Copyright (c) 2025 [Varun M C].
 All rights reserved.  
 This project is licensed under the [License](LICENSE) terms.
 
-##  Deployment
+## Deployment
 
-**[Crptowallet]([https://crytpowallet-1.onrender.com])**
+**[Crptowallet](https://crytpowallet-1.onrender.com)**
+
 
 ## 🚀 Installation
 ```bash
@@ -80,5 +81,7 @@ pip install -r requirements.txt
 
 # Run Flask app
 python app.py
+
+
 
 
